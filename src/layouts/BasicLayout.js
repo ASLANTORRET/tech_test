@@ -1,5 +1,5 @@
 import { Container, Box } from '@chakra-ui/react';
-import { object } from 'prop-types';
+import { shape } from 'prop-types';
 
 function BasicLayout({ children }) {
   return (
@@ -12,7 +12,7 @@ function BasicLayout({ children }) {
 }
 
 BasicLayout.propTypes = {
-  children: object.isRequired,
+  children: shape({}).isRequired,
 };
 
 export default BasicLayout;

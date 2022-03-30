@@ -1,7 +1,9 @@
 import {
-  memo,
   useCallback,
-  useEffect, useRef, useState,
+  useEffect,
+  useRef,
+  useState,
+  memo,
 } from 'react';
 import {
   Box, Flex, Heading, HStack, Icon, SimpleGrid, Spacer, Switch,
@@ -10,7 +12,9 @@ import {
   WiHumidity, WiThermometer, WiBarometer, WiWindDeg,
 } from 'react-icons/wi';
 import debounce from 'lodash.debounce';
-import { string } from 'prop-types';
+import {
+  bool, number, string,
+} from 'prop-types';
 import MemoizedSwitchButton from './SwitchButton';
 
 const sensorIcons = {
@@ -63,7 +67,7 @@ function SensorManagement() {
   };
 
   const debouncedClickHandler = useCallback(
-    debounce(onPanelClick, 200),
+    debounce(onPanelClick, 600),
     [],
   );
 
@@ -96,19 +100,14 @@ function SensorManagement() {
         {(connected
           ? sensorsArr.filter(([, value]) => value.connected) : sensorsArr
         ).map(([key, value]) => (
-          <Box
+          <MemoizedDevice
+            name={value.name}
+            value={value.value}
+            connected={value.connected}
+            deviceId={Number(key)}
+            unit={value.unit}
             key={key}
-            py={6}
-            rounded={12}
-            shadow="lg"
-            borderWidth="1px"
-            textAlign="center"
-            position="relative"
-          >
-            <MemoizedIconAndName name={value.name} />
-            <Box fontSize="0.875rem">{value.value ? `${value.value} ${value.unit}` : 'N/A'}</Box>
-            <MemoizedSwitchButton connected={value.connected} id={key} />
-          </Box>
+          />
         ))}
       </SimpleGrid>
     </Box>
@@ -125,6 +124,40 @@ function IconAndName({ name }) {
     </>
   );
 }
+
+function Device({
+  name, value, connected, unit, deviceId,
+}) {
+  return (
+    <Box
+      key={deviceId}
+      py={6}
+      rounded={12}
+      shadow="lg"
+      borderWidth="1px"
+      textAlign="center"
+      position="relative"
+    >
+      <MemoizedIconAndName name={name} />
+      <Box fontSize="0.875rem">{value ? `${value} ${unit}` : 'N/A'}</Box>
+      <MemoizedSwitchButton connected={connected} id={deviceId} />
+    </Box>
+  );
+}
+
+Device.propTypes = {
+  name: string.isRequired,
+  value: string,
+  connected: bool.isRequired,
+  unit: string.isRequired,
+  deviceId: number.isRequired,
+};
+
+Device.defaultProps = {
+  value: null,
+};
+
+const MemoizedDevice = memo(Device);
 
 IconAndName.propTypes = {
   name: string.isRequired,
